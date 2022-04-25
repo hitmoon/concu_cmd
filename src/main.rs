@@ -1,8 +1,14 @@
 use clap::{arg, Command};
-use std::io::{self, Read, Write};
+use std::io::{Read, Write};
 use std::fs::File;
+use std::fs::OpenOptions;
+use std::fs;
 use rayon::prelude::*;
 use std::process;
+use rand::distributions::Alphanumeric;
+use rand::Rng;
+use thread_id;
+use std::path::Path;
 
 fn main() {
 
@@ -37,6 +43,18 @@ fn main() {
     f.read_to_string(&mut cont).unwrap();
 
     let lines:Vec<String> = cont.split('\n').map(String::from).collect();
+    let randpath: String = rand::thread_rng()
+                    .sample_iter(&Alphanumeric)
+                    .take(8)
+                    .map(char::from)
+                    .collect();
+    let output_dir = format!("output-{}", randpath);
+    println!("Output Dir: {}\n", &output_dir);
+    let logdir = Path::new(&output_dir);
+    if ! logdir.exists() {
+        fs::create_dir(&output_dir).unwrap();
+    }
+
     lines.par_iter()
     .for_each(|arg| {
         let m = arg.trim();
@@ -48,13 +66,27 @@ fn main() {
                 cmds.push(&earg[..]);
             }
     
+            let tid = thread_id::get();
+            let logf = format!("{}/{}-{}.log", &output_dir, &binf, &tid);
+
+            let mut lf = OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .create(true)
+                        .open(&logf).unwrap();
+
             let output = process::Command::new(&binf)
                                 .args(cmds)
                                 .output()
                                 .expect("failed to execute!");
-            println!("status: {}", output.status);
-            io::stdout().write_all(&output.stdout).unwrap();
-            io::stderr().write_all(&output.stderr).unwrap();
+            let ret = format!("{}\n\n", output.status);
+            lf.write_all(&ret.as_bytes()).unwrap();
+            lf.write_all(b"STDOUT:\n\n").unwrap();
+            lf.write_all(&output.stdout).unwrap();
+            lf.write_all(b"\nSTDERR:\n\n").unwrap();
+            lf.write_all(&output.stderr).unwrap();
         }
     });
+
+    println!("\nAll done!");
 }
