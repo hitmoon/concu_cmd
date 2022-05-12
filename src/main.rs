@@ -63,7 +63,10 @@ fn main() {
             println!("Executing: {}", cmd);
             let mut cmds = vec![m];
             if earg != "" {
-                cmds.push(&earg[..]);
+                let eargs: Vec<&str> = earg.split_whitespace().collect();
+                for e in eargs {
+                    cmds.push(&e);
+                }
             }
     
             let tid = thread_id::get();
