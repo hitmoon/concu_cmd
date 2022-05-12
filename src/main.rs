@@ -20,7 +20,7 @@ fn main() {
         .version("0.1")
         .author("zxq_yx_007@163.com")
         .arg(arg!(-b --bin  <bin_file>  "binary file to execute").required(true))
-        .arg(arg!(-a --args [extra_args]   "extra args passwd to").required(false))
+        .arg(arg!(-a --args [extra_args]   "extra args passwd to").required(false).allow_hyphen_values(true))
         .arg(arg!(-f --file <arg_file>  "file to read args from").required(true));
 
     let matches = cmd.get_matches();
