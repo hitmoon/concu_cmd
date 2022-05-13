@@ -61,11 +61,23 @@ fn main() {
         if m != "" {
             let cmd = format!("{} {} {}", &binf, m, &earg);
             println!("Executing: {}", cmd);
-            let mut cmds = vec![m];
+            let mut cmds = vec![m.to_string()];
             if earg != "" {
                 let eargs: Vec<&str> = earg.split_whitespace().collect();
-                for e in eargs {
-                    cmds.push(&e);
+                let mut qs = String::new();
+                for s in eargs {
+                    if s.starts_with('"') {
+                        qs = s.to_string()
+                    } else if s.ends_with('"') {
+                        qs = qs + " " + s;
+                        cmds.push(qs);
+                        qs = "".to_string();
+                        continue;
+                    } else if qs != "" {
+                        qs = qs + " " + s;
+                    } else {
+                        cmds.push(s.to_string());
+                    }
                 }
             }
     
