@@ -67,9 +67,9 @@ fn main() {
                 let mut qs = String::new();
                 for s in eargs {
                     if s.starts_with('"') {
-                        qs = s.to_string()
+                        qs = s[1..].to_string()
                     } else if s.ends_with('"') {
-                        qs = qs + " " + s;
+                        qs = qs + " " + &s[..s.len()-1];
                         cmds.push(qs);
                         qs = "".to_string();
                         continue;
