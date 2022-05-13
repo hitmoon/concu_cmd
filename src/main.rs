@@ -70,7 +70,7 @@ fn main() {
             }
     
             let tid = thread_id::get();
-            let logf = format!("{}/{}-{}.log", &output_dir, &binf, &tid);
+            let logf = format!("{}/{}-{}-{}.log", &output_dir, &binf, m, &tid);
 
             let mut lf = OpenOptions::new()
                         .read(true)
