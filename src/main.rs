@@ -58,10 +58,24 @@ fn main() {
     lines.par_iter()
     .for_each(|arg| {
         let m = arg.trim();
+        let mut exec = format!("{}", &binf);
         if m != "" {
             let cmd = format!("{} {} {}", &binf, m, &earg);
             println!("Executing: {}", cmd);
-            let mut cmds = vec![m.to_string()];
+
+            let mut cmds: Vec<String> = vec![];
+            if binf.find(char::is_whitespace) != None {
+                exec = binf.split_whitespace().nth(0).unwrap().to_string();
+                let bs: Vec<&str> = binf.split_whitespace().collect();
+                for s in bs {
+                    if s == exec {
+                        continue;
+                    }
+                    cmds.push(s.to_string());
+                }
+            }
+
+            cmds.push(m.to_string());
             if earg != "" {
                 let eargs: Vec<&str> = earg.split_whitespace().collect();
                 let mut qs = String::new();
@@ -82,7 +96,7 @@ fn main() {
             }
     
             let tid = thread_id::get();
-            let logf = format!("{}/{}-{}-{}.log", &output_dir, &binf, m, &tid);
+            let logf = format!("{}/{}-{}-{}.log", &output_dir, &exec, m, &tid);
 
             let mut lf = OpenOptions::new()
                         .read(true)
@@ -90,7 +104,7 @@ fn main() {
                         .create(true)
                         .open(&logf).unwrap();
 
-            let output = process::Command::new(&binf)
+            let output = process::Command::new(&exec)
                                 .args(cmds)
                                 .output()
                                 .expect("failed to execute!");
