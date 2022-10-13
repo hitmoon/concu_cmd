@@ -96,7 +96,12 @@ fn main() {
             }
     
             let tid = thread_id::get();
-            let logf = format!("{}/{}-{}-{}.log", &output_dir, &exec, m, &tid);
+            let mut lid = format!("{}", &m);
+            if let Some(p) = lid.rfind('/') {
+                lid = format!("{}", &lid[p + 1..]);
+            }
+
+            let logf = format!("{}/{}-{}-{}.log", &output_dir, &exec, &lid, &tid);
 
             let mut lf = OpenOptions::new()
                         .read(true)
